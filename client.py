@@ -5,6 +5,7 @@ configurazione, messaggi, payload e chiamata HTTP.
 Import e gestione degli errori sono gia' presenti: conservarli.
 """
 
+import json
 import os
 
 import requests
@@ -40,18 +41,33 @@ while True:
         "temperature": 0.2,
         "max_tokens": 300,
         "reasoning_effort": "none",
-        "stream": False,
+        "stream": True,
     }
 
     # --- Chiamata ---------------------------------------------------------
     try:
-        response = requests.post(f"{base_url}/chat/completions", json=payload, timeout=60)
-        response.raise_for_status()
-        data = response.json()
-        if "error" in data:
-            print("Errore dal server:", data["error"])
-        else:
-            print(data["choices"][0]["message"]["content"])
+        testo = ""
+        with requests.post(f"{base_url}/chat/completions", json=payload, stream=True, timeout=60) as response:
+            response.raise_for_status()
+            for riga in response.iter_lines():
+                riga = riga.decode("utf-8")
+                if not riga.startswith("data: "):
+                    # Un errore del server puo' arrivare come JSON senza prefisso "data: ".
+                    try:
+                        errore = json.loads(riga).get("error")
+                    except ValueError:
+                        errore = None
+                    if errore:
+                        print("Errore dal server:", errore)
+                    continue
+                dati = riga[len("data: "):]
+                if dati == "[DONE]":
+                    break
+                delta = json.loads(dati)["choices"][0]["delta"]
+                frammento = delta.get("content") or ""
+                print(frammento, end="", flush=True)
+                testo += frammento
+        print()
     except requests.exceptions.Timeout:
         print("Attesa scaduta: controllare server, carico e tempi.")
     except requests.exceptions.ConnectionError:
