@@ -15,6 +15,8 @@ from dotenv import load_dotenv
 load_dotenv()
 base_url = os.environ["LM_BASE_URL"]
 model = os.environ["LM_MODEL"]
+if not base_url.strip() or not model.strip():
+    raise SystemExit("Configurazione incompleta: compilare LM_BASE_URL e LM_MODEL in .env.")
 
 # --- Messaggi -------------------------------------------------------------
 SYSTEM = "Sei un assistente per studenti. Rispondi in italiano, in modo chiaro e conciso."

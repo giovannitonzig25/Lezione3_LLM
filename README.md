@@ -71,6 +71,6 @@ Il client mostra il prompt `Tu>`: scrivere una domanda e premere Invio. Si esce 
 | `Attesa scaduta` | Carico del computer, tempi del modello |
 | Risposta vuota | `"reasoning_effort": "none"` nel payload: senza, il modello ragiona e consuma i token prima di rispondere |
 | `KeyError: 'LM_BASE_URL'` o `'LM_MODEL'` | `.env` mancante o variabile non definita |
-| `MissingSchema: Invalid URL` | `LM_BASE_URL` vuoto in `.env`: compilarlo come al punto 3 della configurazione |
+| `Configurazione incompleta` | `LM_BASE_URL` o `LM_MODEL` vuoti in `.env`: compilarli come al punto 3 della configurazione |
 
 Una risposta arrivata non è necessariamente corretta: va letta e valutata.
