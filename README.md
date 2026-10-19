@@ -66,11 +66,13 @@ Il client mostra il prompt `Tu>`: scrivere una domanda e premere Invio. Si esce 
 | Messaggio | Primo controllo |
 |---|---|
 | `Connessione fallita` | LM Studio acceso, server avviato, URL e porta in `.env` |
-| `Errore HTTP` con messaggio sul modello | Identificativo in `.env`, modello caricato |
+| `Errore HTTP` seguito da codice e testo | Il server ha risposto con un errore: leggere il testo stampato; LM Studio acceso, modello caricato |
 | `Errore dal server` con messaggio `Unexpected endpoint` | URL in `.env`: deve terminare con `/v1` |
 | `Attesa scaduta` | Carico del computer, tempi del modello |
 | Risposta vuota | `"reasoning_effort": "none"` nel payload: senza, il modello ragiona e consuma i token prima di rispondere |
 | `KeyError: 'LM_BASE_URL'` o `'LM_MODEL'` | `.env` mancante o variabile non definita |
 | `Configurazione incompleta` | `LM_BASE_URL` o `LM_MODEL` vuoti in `.env`: compilarli come al punto 3 della configurazione |
+
+Un identificativo sbagliato in `LM_MODEL` non produce necessariamente un errore: nella prova con LM Studio il server ha risposto comunque con il modello caricato. Per questo l'identificativo va letto dal server (punto 2 della configurazione) e non dato per scontato.
 
 Una risposta arrivata non è necessariamente corretta: va letta e valutata.
