@@ -18,6 +18,7 @@ model = os.environ["LM_MODEL"]
 
 # --- Messaggi -------------------------------------------------------------
 SYSTEM = "Sei un assistente per studenti. Rispondi in italiano, in modo chiaro e conciso."
+messages = [{"role": "system", "content": SYSTEM}]
 
 # --- Ciclo di domande -----------------------------------------------------
 while True:
@@ -30,14 +31,12 @@ while True:
         break
     if not domanda:
         continue
+    messages.append({"role": "user", "content": domanda})
 
     # --- Payload ----------------------------------------------------------
     payload = {
         "model": model,
-        "messages": [
-            {"role": "system", "content": SYSTEM},
-            {"role": "user", "content": domanda},
-        ],
+        "messages": messages,
         "temperature": 0.2,
         "max_tokens": 300,
         "reasoning_effort": "none",
@@ -45,8 +44,9 @@ while True:
     }
 
     # --- Chiamata ---------------------------------------------------------
+    testo = ""
+    completata = False
     try:
-        testo = ""
         with requests.post(f"{base_url}/chat/completions", json=payload, stream=True, timeout=60) as response:
             response.raise_for_status()
             for riga in response.iter_lines():
@@ -62,6 +62,7 @@ while True:
                     continue
                 dati = riga[len("data: "):]
                 if dati == "[DONE]":
+                    completata = True
                     break
                 delta = json.loads(dati)["choices"][0]["delta"]
                 frammento = delta.get("content") or ""
@@ -74,3 +75,9 @@ while True:
         print("Connessione fallita: controllare server, URL e porta.")
     except requests.exceptions.HTTPError:
         print("Errore HTTP:", response.status_code, response.text)
+
+    # --- Cronologia -------------------------------------------------------
+    if completata and testo:
+        messages.append({"role": "assistant", "content": testo})
+    else:
+        messages.pop()  # la domanda non ha avuto risposta
