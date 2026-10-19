@@ -16,39 +16,45 @@ base_url = os.environ["LM_BASE_URL"]
 model = os.environ["LM_MODEL"]
 
 # --- Messaggi -------------------------------------------------------------
-messages = [
-    {
-        "role": "system",
-        "content": "Sei un assistente per studenti. Rispondi in italiano, in modo chiaro e conciso.",
-    },
-    {
-        "role": "user",
-        "content": "Spiega in due frasi che cos'è un modello linguistico.",
-    },
-]
+SYSTEM = "Sei un assistente per studenti. Rispondi in italiano, in modo chiaro e conciso."
 
-# --- Payload --------------------------------------------------------------
-payload = {
-    "model": model,
-    "messages": messages,
-    "temperature": 0.2,
-    "max_tokens": 300,
-    "reasoning_effort": "none",
-    "stream": False,
-}
+# --- Ciclo di domande -----------------------------------------------------
+while True:
+    try:
+        domanda = input("Tu> ").strip()
+    except (EOFError, KeyboardInterrupt):
+        print()
+        break
+    if domanda.lower() == "esci":
+        break
+    if not domanda:
+        continue
 
-# --- Chiamata -------------------------------------------------------------
-try:
-    response = requests.post(f"{base_url}/chat/completions", json=payload, timeout=60)
-    response.raise_for_status()
-    data = response.json()
-    if "error" in data:
-        print("Errore dal server:", data["error"])
-    else:
-        print(data["choices"][0]["message"]["content"])
-except requests.exceptions.Timeout:
-    print("Attesa scaduta: controllare server, carico e tempi.")
-except requests.exceptions.ConnectionError:
-    print("Connessione fallita: controllare server, URL e porta.")
-except requests.exceptions.HTTPError:
-    print("Errore HTTP:", response.status_code, response.text)
+    # --- Payload ----------------------------------------------------------
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": SYSTEM},
+            {"role": "user", "content": domanda},
+        ],
+        "temperature": 0.2,
+        "max_tokens": 300,
+        "reasoning_effort": "none",
+        "stream": False,
+    }
+
+    # --- Chiamata ---------------------------------------------------------
+    try:
+        response = requests.post(f"{base_url}/chat/completions", json=payload, timeout=60)
+        response.raise_for_status()
+        data = response.json()
+        if "error" in data:
+            print("Errore dal server:", data["error"])
+        else:
+            print(data["choices"][0]["message"]["content"])
+    except requests.exceptions.Timeout:
+        print("Attesa scaduta: controllare server, carico e tempi.")
+    except requests.exceptions.ConnectionError:
+        print("Connessione fallita: controllare server, URL e porta.")
+    except requests.exceptions.HTTPError:
+        print("Errore HTTP:", response.status_code, response.text)
