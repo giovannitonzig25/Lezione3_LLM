@@ -1,12 +1,12 @@
 # repo-lab-llm
 
-Client Python minimo che invia una domanda a un modello eseguito in locale con LM Studio e stampa la risposta. Materiale della Lezione 3 del corso Deep Learning e LLM (ITS Alto Adriatico).
+Client Python minimo da terminale per un modello eseguito in locale con LM Studio: legge le domande da tastiera, stampa la risposta in streaming e ricorda la conversazione finché resta aperto. Materiale della Lezione 3 del corso Deep Learning e LLM (ITS Alto Adriatico).
 
 ## Contenuto della repository
 
 | File | Funzione |
 |---|---|
-| `client.py` | Scheletro del client da completare con Claude Code |
+| `client.py` | Client da terminale: domanda da `input()`, risposta in streaming, cronologia in memoria |
 | `requirements.txt` | Dipendenze con versioni fissate |
 | `.env.example` | Modello della configurazione locale, senza segreti |
 | `CLAUDE.md` | Istruzioni di sviluppo lette da Claude Code |
@@ -40,7 +40,7 @@ In VS Code selezionare l'interprete `.venv` con **Python: Select Interpreter**.
    (Invoke-RestMethod "$base/models").data | Select-Object id
    ```
 
-3. Creare la configurazione locale, solo se `.env` non esiste già, e inserire l'identificativo letto al punto 2 al posto di `ID_MODELLO_REALE`:
+3. Creare la configurazione locale, solo se `.env` non esiste già. In `.env.example` i valori sono vuoti: in `.env` vanno compilati `LM_BASE_URL` (per esempio `http://127.0.0.1:1234/v1`) e `LM_MODEL` con l'identificativo letto al punto 2:
 
    ```powershell
    Copy-Item .env.example .env
@@ -55,6 +55,12 @@ In VS Code selezionare l'interprete `.venv` con **Python: Select Interpreter**.
 .\.venv\Scripts\python.exe client.py
 ```
 
+Il client mostra il prompt `Tu>`: scrivere una domanda e premere Invio. Si esce con `esci` o con Ctrl+C; le righe vuote vengono ignorate.
+
+- La risposta compare a frammenti mentre il modello la genera (streaming).
+- Il client ricorda la conversazione finché resta aperto: la cronologia vive solo in memoria e si perde alla chiusura. Ogni turno allunga la richiesta (più token e più tempo, fino al limite di contesto del modello).
+- Se una richiesta fallisce, la domanda non entra nella cronologia.
+
 ## Diagnosi rapida
 
 | Messaggio | Primo controllo |
@@ -65,5 +71,6 @@ In VS Code selezionare l'interprete `.venv` con **Python: Select Interpreter**.
 | `Attesa scaduta` | Carico del computer, tempi del modello |
 | Risposta vuota | `"reasoning_effort": "none"` nel payload: senza, il modello ragiona e consuma i token prima di rispondere |
 | `KeyError: 'LM_BASE_URL'` o `'LM_MODEL'` | `.env` mancante o variabile non definita |
+| `MissingSchema: Invalid URL` | `LM_BASE_URL` vuoto in `.env`: compilarlo come al punto 3 della configurazione |
 
 Una risposta arrivata non è necessariamente corretta: va letta e valutata.

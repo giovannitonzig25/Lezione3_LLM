@@ -1,6 +1,6 @@
 # Assistente del laboratorio
 - Obiettivo: un client Python per un modello locale.
-- client.py contiene lo scheletro da completare.
+- client.py è una piccola chat da terminale: domanda da input(), risposta in streaming, cronologia solo in memoria.
 - README.md descrive la preparazione dell'ambiente.
 - requirements.txt contiene le dipendenze concordate.
 - Usare PowerShell nei comandi per Windows.
@@ -9,4 +9,6 @@
 - Non inserire segreti, pesi o ambiente virtuale in Git.
 - Non sono presenti test automatici in questo checkpoint.
 - Avvio dalla radice: .\.venv\Scripts\python.exe client.py
-- Verifica manuale: domanda fissa, confronto delle risposte, server fermo e ripristinato.
+- Uscita dal client: `esci` o Ctrl+C.
+- Verifica manuale: due domande nella stessa esecuzione, nome ricordato nella sessione e dimenticato al riavvio, server fermo e ripristinato.
+- Commit in Conventional Commits, un'estensione per commit, lavorando su dev e unendo a main solo dopo la verifica.
